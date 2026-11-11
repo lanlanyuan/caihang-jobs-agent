@@ -1,0 +1,16 @@
+{
+  "name": "caihang-jobs-agent",
+  "version": "3.0.0",
+  "private": true,
+  "description": "才航 · 真实岗位聚合 + 简历上传解析与可解释匹配（公益求职助手）",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "sync": "node scripts/sync.js",
+    "test:e2e": "node scripts/e2e.js"
+  },
+  "optionalDependencies": {
+    "pdf-parse": "1.1.1"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "_readme": [
+    "全部数据源都是公开、无需密钥、可被任何人核验的地址；每条岗位都保留原始链接、来源与抓取时间。",
+    "enabled:false 即关闭该源。同步结果写入 data/jobs-cache.json，断网时自动使用上次成功抓取的真实数据。",
+    "商业招聘平台（BOSS直聘/智联/前程无忧/国聘等）的 robots.txt 或用户协议禁止未授权抓取，本项目不内置、也不建议绕过。",
+    "署名要求：2027 届校招岗位库来自 HU-eun/campus-recruitment（每日自动更新）；Jobicy 需明确署名并回链原帖；RemoteOK / Himalayas 需保留回源链接；Greenhouse 职位需链接企业官方职位页。前端卡片已逐条保留 origin 链接。"
+  ],
+  "limitPerSource": 1200,
+  "sources": [
+    {
+      "id": "campus2027",
+      "type": "github-json",
+      "name": "2027 届校招岗位库（每日更新）",
+      "kind": "campus",
+      "enabled": true,
+      "maxItems": 12000,
+      "credit": "https://github.com/HU-eun/campus-recruitment",
+      "desc": "开源社区维护的国内校招岗位库：公司、岗位、地点、投递链接、截止时间、招聘对象，仓库每日自动更新",
+      "repo": "HU-eun/campus-recruitment",
+      "path": "data/jobs.json",
+      "preferBlob": true,
+      "api": "https://api.github.com/repos/HU-eun/campus-recruitment/contents/data/jobs.json",
+      "blobApi": "https://api.github.com/repos/HU-eun/campus-recruitment/git/blobs/",
+      "raw": "https://raw.githubusercontent.com/HU-eun/campus-recruitment/main/data/jobs.json",
+      "summaryApi": "https://api.github.com/repos/HU-eun/campus-recruitment/contents/data/summary.json"
+    },
+    {
+      "id": "greenhouse",
+      "type": "greenhouse",
+      "name": "Greenhouse · 企业官方职位板",
+      "kind": "job",
+      "enabled": true,
+      "credit": "https://boards-api.greenhouse.io/",
+      "desc": "企业自建招聘系统的公开职位接口，逐条对应官方职位页",
+      "boards": ["stripe", "databricks", "anthropic", "cloudflare", "figma", "scaleai", "airtable", "discord", "reddit", "gitlab", "cockroachlabs", "duolingo", "pinterest", "shein"]
+    },
+    {
+      "id": "jobicy",
+      "type": "jobicy",
+      "name": "Jobicy · 远程职位 API",
+      "kind": "job",
+      "enabled": true,
+      "credit": "https://jobicy.com/",
+      "desc": "公开远程职位 feed，含薪资/职级/发布时间（需署名 Jobicy 并回链原帖）",
+      "urls": [
+        "https://jobicy.com/api/v2/remote-jobs?count=50&industry=engineering",
+        "https://jobicy.com/api/v2/remote-jobs?count=50&industry=data-science",
+        "https://jobicy.com/api/v2/remote-jobs?count=50&industry=design-multimedia",
+        "https://jobicy.com/api/v2/remote-jobs?count=50&industry=marketing",
+        "https://jobicy.com/api/v2/remote-jobs?count=50"
+      ]
+    },
+    {
+      "id": "remoteok",
+      "type": "remoteok",
+      "name": "RemoteOK · 公开职位 feed",
+      "kind": "job",
+      "enabled": true,
+      "credit": "https://remoteok.com/",
+      "desc": "公开远程职位 feed，含薪资区间与发布时间",
+      "url": "https://remoteok.com/api"
+    },
+    {
+      "id": "himalayas",
+      "type": "himalayas",
+      "name": "Himalayas · 公开职位 API",
+      "kind": "job",
+      "enabled": true,
+      "credit": "https://himalayas.app/jobs",
+      "desc": "公开职位 API，含薪资、职级、地区限制（游标分页取最新若干页）",
+      "url": "https://himalayas.app/jobs/api?limit=20",
+      "pages": 4
+    }
+  ]
+}

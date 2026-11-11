@@ -1,0 +1,23 @@
+# 依赖：由 npm install 生成，不入库（README 有说明）
+node_modules/
+
+# 上传目录：简历只在内存解析，这里只留空目录占位
+uploads/*
+!uploads/.gitkeep
+
+# 本地配置：可能含 API Key，绝不入库（.env.example 是模板，保留）
+.env
+.env.local
+.env.*.local
+
+# 运行产物
+*.log
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+
+# 生成示例 PDF 时用的中间 HTML，不是交付内容
+samples/_resume_print.html
+
+# 注意：data/jobs-cache.json 是有意保留的离线演示数据，不忽略

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>才航 · 真实岗位与简历匹配助手</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <div class="logo">才</div>
+    <div class="brand">
+      <h1>才航 · 真实岗位与简历匹配助手</h1>
+      <p>公开可核验岗位数据 · 上传简历即分析匹配 · 公益免费</p>
+    </div>
+    <div class="hstats">
+      <span class="stat"><span class="dot" id="dotApi"></span><span id="txtApi">连接中…</span></span>
+      <span class="stat">真实岗位 <b id="txtJobs">0</b> 条</span>
+      <span class="stat">数据源 <b id="txtSources">0</b> 个</span>
+      <span class="stat" id="txtSync">尚未同步</span>
+      <span class="stat"><span class="dot warn" id="dotLlm"></span><span id="txtLlm">检测中</span></span>
+      <button class="btn sm" id="btnSync">⟳ 同步最新岗位</button>
+      <button class="btn sm" id="btnSources">数据源与合规</button>
+      <button class="btn sm" id="btnList">投递清单 <span id="listCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <!-- ============ 左侧：简历 & 画像 ============ -->
+  <aside class="side">
+    <section class="card">
+      <div class="sec">
+        <div class="sec-h"><span class="n">1</span><h2>上传简历</h2><span class="tip" id="tipUpload">支持 PDF / DOCX / TXT</span></div>
+        <div id="drop" class="drop">
+          <span class="ico">📄</span>
+          <b>点击选择，或把简历拖到这里</b>
+          <span>PDF · DOCX · TXT · MD　|　最大 12MB　|　文件只在内存中解析，不保存</span>
+        </div>
+        <input type="file" id="file" class="hide" accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json" />
+        <div id="fileResult" class="hide" style="margin-top:10px"></div>
+        <div style="display:flex;gap:7px;margin-top:10px">
+          <button class="btn sm" id="btnPaste" style="flex:1">改用手写/粘贴文本</button>
+          <button class="btn sm" id="btnSample" style="flex:1">填入示例简历</button>
+        </div>
+        <div id="pasteBox" class="hide" style="margin-top:10px">
+          <textarea class="paste" id="pasteText" placeholder="粘贴简历全文，或写清：学历 / 专业 / 技能 / 项目经历 / 意向城市 / 期望岗位…"></textarea>
+          <button class="btn primary wide" id="btnParseText" style="margin-top:8px">解析并匹配岗位</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="n">2</span><h2>我的画像</h2><span class="tip" id="tipEngine">未解析</span></div>
+        <div id="profileBox">
+          <div class="empty" style="padding:18px 10px;border-style:dashed;box-shadow:none">
+            上传简历后自动生成画像<br/><span class="tiny">所有字段都可以手动修改，改完点「重新匹配」</span>
+          </div>
+        </div>
+        <button class="btn primary wide" id="btnRematch" style="margin-top:11px">重新匹配岗位</button>
+      </div>
+    </section>
+
+    <section class="card sec">
+      <div class="sec-h"><span class="n">3</span><h2>使用说明</h2></div>
+      <div class="small muted" style="line-height:1.85">
+        ① 上传简历 → 自动提取画像并按匹配度排序岗位<br/>
+        ② 每条岗位都显示<b>来源、发布时间、原始链接</b>，点击可回到官网核验<br/>
+        ③ 「国内校招岗位」来自每日更新的 2027 届开源岗位库；「具体岗位」来自企业 / 公开职位 API<br/>
+        ④ 薪资按来源原始币种显示，未公开的一律留空，不虚构
+      </div>
+      <div class="hl" style="margin-top:10px">简历文件不写入磁盘、不上传第三方；仅在你配置了大模型密钥时，才会把文本送往你自己的模型服务做一次性解析。</div>
+    </section>
+  </aside>
+
+  <!-- ============ 右侧：岗位 ============ -->
+  <main class="main">
+    <section class="card toolbar">
+      <div class="searchrow">
+        <div class="search"><input id="q" placeholder="搜索岗位 / 公司 / 技能，中英文都可以（如：算法、Python、Data）" /></div>
+        <button class="btn primary" id="btnSearch">搜索</button>
+        <button class="btn" id="btnReset">重置</button>
+      </div>
+      <div class="filters">
+        <select class="f" id="fType"><option value="">全部类型</option><option value="job">具体岗位</option><option value="campus">国内校招岗位</option></select>
+        <select class="f" id="fCategory"><option value="">全部职类</option></select>
+        <select class="f" id="fSource"><option value="">全部数据源</option></select>
+        <select class="f" id="fCity"><option value="">全部地区</option></select>
+        <select class="f" id="fSort"><option value="score">按匹配度</option><option value="date">按发布时间</option><option value="salary">按薪资</option></select>
+        <label class="chk" id="chkGrad"><input type="checkbox" id="onlyNewGrad" />应届/实习友好</label>
+        <label class="chk" id="chkSalary"><input type="checkbox" id="onlySalary" />仅公开薪资</label>
+        <label class="chk" id="chkChina"><input type="checkbox" id="onlyChina" />仅中国相关</label>
+      </div>
+    </section>
+
+    <div class="summary" id="summary">
+      <span class="spinner"></span> 正在加载真实岗位数据…
+    </div>
+    <div id="alertBox"></div>
+    <div class="grid" id="jobs"></div>
+    <div class="loadmore"><button class="btn" id="btnMore">加载更多岗位</button></div>
+  </main>
+</div>
+
+<div class="footer">
+  <b>数据来源与署名：</b>
+  国内 2027 届校招岗位库 <a href="https://github.com/HU-eun/campus-recruitment" target="_blank" rel="noopener">HU-eun/campus-recruitment</a>（社区维护、每日自动更新，含公司/岗位/地点/截止时间/投递链接）·
+  企业官方职位板 <a href="https://boards-api.greenhouse.io/" target="_blank" rel="noopener">Greenhouse</a> ·
+  远程职位 <a href="https://jobicy.com/" target="_blank" rel="noopener">Jobicy</a>（按其 API 要求署名并回链原帖）、
+  <a href="https://remoteok.com/" target="_blank" rel="noopener">RemoteOK</a>、
+  <a href="https://himalayas.app/jobs" target="_blank" rel="noopener">Himalayas</a>。
+  每条岗位卡片均保留原始链接、来源与抓取时间，请以企业官网最终信息为准，谨防虚假招聘与收费内推。<br/>
+  <b>合规说明：</b>本项目只使用公开、无需授权、可被任何人复核的数据接口，不抓取明确禁止程序访问的商业招聘平台，不绕过登录与鉴权；对外请求限速并标识 User-Agent。岗位不保证实时在招，投递前请到官网确认。
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<script src="/app.js"></script>
+</body>
+</html>
