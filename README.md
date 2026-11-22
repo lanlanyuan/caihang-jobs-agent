@@ -86,7 +86,7 @@ npm run test:e2e     # 服务已启动的前提下运行，25 项检查
 
 - 上传用 `multipart/form-data`。**个人使用 · 不收集简历**：本项目是供个人自助使用的公益小工具，**不设账号、不收集或留存任何个人信息与简历数据**。简历仅在你主动上传后于运行内存中即时解析，完成后立即释放，不落盘、不写日志、不做持久化、不用于其他用途，也不转发给第三方大模型（LLM 未启用）；本地运行时简历不出本机，云端部署时仅在当前实例内存中短暂处理。
 - DOCX：内置 ZIP 中央目录 + XML 解析（`word/document.xml` / `footnotes.xml` / `header*.xml`），零依赖。
-- PDF：优先 `pdf-parse`（中文支持更好），未安装时回退内置 PDF stream 文本层提取；扫描件图片型 PDF 无文本层，会明确提示改用可复制文字的 PDF。
+- PDF：优先 `pdf-parse`（中文支持更好）；未安装时回退内置解析器，可解压 PDF stream、解析 **ToUnicode CMap**，正确处理中文 CID 编码与十六进制字符串，无需任何依赖也能还原中英混排简历。扫描件图片型 PDF 无文本层，会明确提示改用可复制文字的 PDF。
 - 产出统一画像：`degree / majors / skills / cities / categories / expectedRoles / yearsExp / isParty / keywords / highlights / crossMajorSuggestions / summary / engine`。
 - 解析引擎：**本地中英双语规则**（无需外部服务、不泄露简历）。CloudBase 交付版已把运行参数固化为项目内常量，LLM 未启用；如需接入 LLM，请在其他部署形态下自行改造。
 
