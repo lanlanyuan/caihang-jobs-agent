@@ -9,7 +9,7 @@ const CATS = ["软件研发", "算法/AI", "数据", "产品/项目", "设计/�
 
 const S = {
   status: null, profile: null, file: null, hasProfile: false,
-  items: [], total: 0, busy: false,
+  items: [], total: 0, busy: false, view: "all",
   filters: { q: "", types: [], categories: [], sources: [], cities: [], onlyNewGrad: false, onlySalary: false, onlyChina: false, sort: "score" },
   checklist: JSON.parse(localStorage.getItem("caihang.checklist") || "[]")
 };
@@ -91,6 +91,15 @@ function payload(limit, offset) {
 
 /* ---------------- 岗位列表 ---------------- */
 function scoreClass(s) { return s >= 70 ? "" : (s >= 45 ? "mid" : "low"); }
+function scoreBreakdownHtml(j) {
+  if (!j.breakdown || !j.breakdown.length) return '<div class="small muted">未上传简历，暂无分项打分。</div>';
+  const rows = j.breakdown.map(d => {
+    const pct = d.max > 0 ? Math.min(100, Math.round(d.value / d.max * 100)) : 0;
+    return `<div class="dim"><div class="lab"><span>${esc(d.label)}</span><em>${esc(d.value)} / ${esc(d.max)}</em></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  }).join("");
+  return `<div class="tier"><b>${esc(j.tier || "—")} · ${esc(j.score)} 分</b><span>满分参考 75+ 强匹配</span></div>${rows}
+    ${j.advice ? `<div class="advice">💡 ${esc(j.advice)}</div>` : ""}`;
+}
 function jobCard(j) {
   const added = S.checklist.some(c => c.id === j.id);
   const badges = [];
@@ -114,10 +123,13 @@ function jobCard(j) {
     <div class="badges">${badges.join("")}</div>
     ${j.reasons && j.reasons.length ? `<div class="why"><b>匹配依据：</b>${esc(j.reasons.slice(0, 4).join("；"))}</div>` : ""}
     ${j.gaps && j.gaps.length && S.hasProfile ? `<div class="gap">📌 岗位还提到：${esc(j.gaps.join("、"))}（简历中未识别到，可在简历里补充）</div>` : ""}
+    <div class="score-detail hide" id="sd-${esc(j.id)}">${scoreBreakdownHtml(j)}</div>
     <div class="desc">${esc((j.description || "该来源未提供岗位摘要，点击「查看原始职位」核对完整 JD。").replace(/\n/g, " · "))}</div>
     <div class="acts">
       ${j.originUrl ? `<a class="btn primary sm" href="${esc(j.originUrl)}" target="_blank" rel="noopener">查看原始职位 ↗</a>` : ""}
       <button class="btn sm" data-act="detail">职位详情</button>
+      <button class="btn sm" data-act="score">📊 评分明细</button>
+      <button class="btn sm interview" data-act="interview">🔍 查面经</button>
       <button class="btn sm ${added ? "added" : ""}" data-act="add">${added ? "✓ 已加入清单" : "＋ 加入投递"}</button>
     </div>
     <div class="src-line">来源：<a href="${esc(j.sourceUrl || j.originUrl)}" target="_blank" rel="noopener">${esc(j.sourceName)}</a>
@@ -139,11 +151,15 @@ function renderJobs(append) {
 let currentBatchSize = 0;
 function renderSummary() {
   const s = S.status;
+  const bt = s.summary.byType || {};
+  const campusCount = bt["国内校招岗位"] || bt.campus || 0;
+  $("#viewAllNum").textContent = " " + fmtNum(s.jobCount);
+  $("#viewCampusNum").textContent = " " + fmtNum(campusCount);
   $("#summary").innerHTML = `
     <span>库中真实岗位 <b>${fmtNum(s.jobCount)}</b> 条</span>
     <span class="muted">|</span><span>当前筛选命中 <b>${fmtNum(S.total)}</b> 条</span>
     ${S.hasProfile ? `<span class="badge grad">已按「${esc(S.profile.degree || "简历")}」画像排序</span>` : `<span class="badge">未上传简历 · 按应届友好度排序</span>`}
-    <span class="muted">|</span><span class="small muted">国内校招岗位 ${fmtNum(s.summary.byType["国内校招岗位"] || 0)} 条 · 公开薪资 ${fmtNum(s.summary.withSalary)} 条 · 应届友好 ${fmtNum(s.summary.newGrad)} 条</span>
+    <span class="muted">|</span><span class="small muted">国内校招岗位 ${fmtNum(campusCount)} 条 · 公开薪资 ${fmtNum(s.summary.withSalary)} 条 · 应届友好 ${fmtNum(s.summary.newGrad)} 条</span>
     <button class="btn sm ghost src" id="btnSrcInline">查看数据来源 ↗</button>`;
   $("#btnSrcInline").onclick = openSources;
 }
@@ -270,11 +286,40 @@ async function openDetail(id) {
         <span class="badge">${esc(ago(j.publishedAt))}</span></div>
       <pre>${esc(j.description || "该来源未提供完整的职位描述，请点下方按钮到原始页面查看。")}</pre>
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-        ${j.sourceUrl ? `<a class="btn primary" href="${esc(j.sourceUrl)}" target="_blank" rel="noopener">到原始页面查看 / 投递 ↗</a>` : ""}
+        ${j.originUrl || j.sourceUrl ? `<a class="btn primary" href="${esc(j.originUrl || j.sourceUrl)}" target="_blank" rel="noopener">到原始页面查看 / 投递 ↗</a>` : ""}
         <a class="btn" href="${esc(j.sourceUrl || "#")}" target="_blank" rel="noopener">${esc(j.sourceName)}</a>
+        <button class="btn interview" data-act="interview" data-id="${esc(j.id)}">🔍 查面经</button>
       </div>
+      ${j.breakdown ? `<div class="score-detail" style="margin-top:14px"><b style="font-size:12px">匹配度评分明细</b><div style="margin-top:8px">${scoreBreakdownHtml(j)}</div></div>` : ""}
       <div class="src-line" style="margin-top:12px">抓取于 ${esc(fmtDate(j.fetchedAt, true))} · 数据以企业官网为准</div>`);
+    $$("#modalRoot [data-act=interview]").forEach(b => b.onclick = () => {
+      const item = S.items.find(x => x.id === b.dataset.id) || j;
+      openInterview(item);
+    });
   } catch (e) { modal("职位详情", `<div class="notice warn">读取失败：${esc(e.message)}</div>`); }
+}
+
+/* 面经检索：不抓取任何平台，只生成公开搜索入口，学生自行核验 */
+function interviewLinks(j) {
+  const company = String(j.company || "").trim();
+  const role = String(j.title || "").split(/[、，,；;｜|]/)[0].trim().slice(0, 24);
+  const q = `${company} ${role} 面经 校招`.replace(/\s+/g, " ").trim();
+  const enc = encodeURIComponent(q);
+  return [
+    { name: "牛客网讨论", desc: "国内校招面经社区，按公司 + 岗位检索", url: `https://www.nowcoder.com/search?type=post&query=${enc}` },
+    { name: "知乎经验", desc: "面试经验与面经复盘", url: `https://www.zhihu.com/search?type=content&q=${enc}` },
+    { name: "Bing 全网", desc: "跨站检索，含企业官网与博客", url: `https://www.bing.com/search?q=${enc}` },
+    { name: "GitHub 面经仓库", desc: "开源整理的面经与面题", url: `https://github.com/search?q=${enc}&type=repositories` }
+  ];
+}
+function openInterview(j) {
+  const links = interviewLinks(j);
+  modal("查面经 · " + (j.company || "岗位"), `
+    <div class="notice info">岗位：<b>${esc(j.company)} · ${esc(j.displayTitle || j.title)}</b><br/>
+      以下是按「公司 + 岗位 + 面经」生成的<b>公开搜索入口</b>。本站不抓取、不存储任何面经内容，也不保证第三方信息准确性；请以企业官方流程为准。纯公益、不收费。</div>
+    <div class="interview-links" style="margin-top:14px">
+      ${links.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)} ↗<span>${esc(x.desc)}</span></a>`).join("")}
+    </div>`);
 }
 function openSources() {
   const s = S.status; if (!s) return;
@@ -287,13 +332,13 @@ function openSources() {
     <td colspan="3"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a><div class="tiny muted">${esc(x.desc)}</div></td></tr>`).join("");
   modal("数据源 · 每一条都可核验", `
     <div class="notice info">当前共 <b>${fmtNum(s.jobCount)}</b> 条岗位，最近一次成功抓取：<b>${esc(fmtDate(s.fetchedAt, true))}</b>。
-    抓取结果缓存在 <code>${esc(s.cacheFile)}</code>，断网时仍可浏览上次抓到的真实数据。</div>
+    岗位数据在运行时联网抓取并仅存于内存，不随部署包分发；每条均可点原始链接核验。</div>
     <h3 style="font-size:13px;margin:16px 0 8px">本次同步明细</h3>
     <table class="src"><thead><tr><th>数据源</th><th>状态</th><th>条数</th><th>耗时</th><th>说明</th></tr></thead><tbody>${rows || '<tr><td colspan="5">尚未同步</td></tr>'}</tbody></table>
     <h3 style="font-size:13px;margin:18px 0 8px">来源地址（公开、无需密钥）</h3>
     <table class="src"><thead><tr><th>名称</th><th>状态</th><th colspan="3">官方地址 / 说明</th></tr></thead><tbody>${srcs}</tbody></table>
     <div class="notice warn" style="margin-top:14px">不抓取 BOSS直聘、智联、前程无忧、国聘等明确禁止未授权程序访问的商业平台；
-    国内 2027 届校招岗位来自开源社区每日更新的公开数据（HU-eun/campus-recruitment），批次、截止时间与投递方式请以企业官网公告为准。</div>`);
+    当前启用 5 个公开来源（含「2027 校招专栏」），每条均可点原始链接核验；页面岗位来自只读快照 + 实时刷新，校招库以公益聚合 + 侵权即删方式展示。</div>`);
 }
 function openChecklist() {
   const rows = S.checklist.map((c, i) => `<tr><td>${i + 1}</td><td><b title="${esc(c.title)}">${esc(c.displayTitle || c.title)}</b><div class="tiny muted">${esc(c.company)} · ${esc(c.location)}</div></td>
@@ -318,6 +363,22 @@ function exportList() {
 }
 
 /* ---------------- 事件绑定 ---------------- */
+function switchView(view) {
+  if (S.view === view) return;
+  S.view = view;
+  $$("#views .view").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+  $("#campusTip").classList.toggle("hide", view !== "campus");
+  $("#fType").value = view === "campus" ? "campus" : "";
+  if (view === "campus") {
+    $("#onlyNewGrad").checked = false;
+    $("#onlyChina").checked = false;
+    $("#chkGrad").classList.remove("on");
+    $("#chkChina").classList.remove("on");
+  }
+  readFilters(); loadJobs(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function bind() {
   const drop = $("#drop"), file = $("#file");
   drop.onclick = () => file.click();
@@ -349,6 +410,7 @@ function bind() {
     } catch (e) { toast("同步失败：" + e.message, 4200); }
     finally { b.disabled = false; b.textContent = "⟳ 同步最新岗位"; }
   };
+  $$("#views .view").forEach(b => b.onclick = () => switchView(b.dataset.view));
   $("#btnSources").onclick = openSources;
   $("#btnList").onclick = openChecklist;
   $("#jobs").addEventListener("click", e => {
@@ -356,6 +418,12 @@ function bind() {
     const card = btn.closest("[data-id]"); const id = card.dataset.id;
     const j = S.items.find(x => x.id === id); if (!j) return;
     if (btn.dataset.act === "detail") return openDetail(id);
+    if (btn.dataset.act === "score") {
+      const box = document.getElementById("sd-" + id);
+      if (box) { box.classList.toggle("hide"); btn.textContent = box.classList.contains("hide") ? "📊 评分明细" : "📊 收起明细"; }
+      return;
+    }
+    if (btn.dataset.act === "interview") return openInterview(j);
     if (btn.dataset.act === "add") {
       const i = S.checklist.findIndex(c => c.id === id);
       if (i >= 0) { S.checklist.splice(i, 1); btn.classList.remove("added"); btn.textContent = "＋ 加入投递"; toast("已从清单移除"); }

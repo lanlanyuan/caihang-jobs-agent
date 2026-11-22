@@ -1,9 +1,9 @@
 {
   "_readme": [
     "全部数据源都是公开、无需密钥、可被任何人核验的地址；每条岗位都保留原始链接、来源与抓取时间。",
-    "enabled:false 即关闭该源。同步结果写入 data/jobs-cache.json，断网时自动使用上次成功抓取的真实数据。",
+    "enabled:false 即关闭该源。运行期联网抓取，岗位保存在进程内存；包内 jobs-cache.json 是只读冷启动快照，不含完整数据库副本。",
     "商业招聘平台（BOSS直聘/智联/前程无忧/国聘等）的 robots.txt 或用户协议禁止未授权抓取，本项目不内置、也不建议绕过。",
-    "署名要求：2027 届校招岗位库来自 HU-eun/campus-recruitment（每日自动更新）；Jobicy 需明确署名并回链原帖；RemoteOK / Himalayas 需保留回源链接；Greenhouse 职位需链接企业官方职位页。前端卡片已逐条保留 origin 链接。"
+    "署名要求：Jobicy 需明确署名并回链原帖；RemoteOK / Himalayas 需保留回源链接；Greenhouse 职位需链接企业官方职位页；校招库 HU-eun/campus-recruitment 已启用专栏展示，仅回链原始公告，侵权即删。"
   ],
   "limitPerSource": 1200,
   "sources": [
@@ -15,7 +15,7 @@
       "enabled": true,
       "maxItems": 12000,
       "credit": "https://github.com/HU-eun/campus-recruitment",
-      "desc": "开源社区维护的国内校招岗位库：公司、岗位、地点、投递链接、截止时间、招聘对象，仓库每日自动更新",
+      "desc": "开源社区维护的国内校招岗位库：公司、岗位、地点、投递链接、截止时间、招聘对象，仓库每日自动更新。本站仅聚合公开条目并回链原始公告，如涉及侵权请联系 GitHub 地址删除。",
       "repo": "HU-eun/campus-recruitment",
       "path": "data/jobs.json",
       "preferBlob": true,
@@ -32,7 +32,22 @@
       "enabled": true,
       "credit": "https://boards-api.greenhouse.io/",
       "desc": "企业自建招聘系统的公开职位接口，逐条对应官方职位页",
-      "boards": ["stripe", "databricks", "anthropic", "cloudflare", "figma", "scaleai", "airtable", "discord", "reddit", "gitlab", "cockroachlabs", "duolingo", "pinterest", "shein"]
+      "boards": [
+        "stripe",
+        "databricks",
+        "anthropic",
+        "cloudflare",
+        "figma",
+        "scaleai",
+        "airtable",
+        "discord",
+        "reddit",
+        "gitlab",
+        "cockroachlabs",
+        "duolingo",
+        "pinterest",
+        "shein"
+      ]
     },
     {
       "id": "jobicy",

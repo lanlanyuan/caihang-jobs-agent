@@ -12,7 +12,7 @@
     <div class="logo">才</div>
     <div class="brand">
       <h1>才航 · 真实岗位与简历匹配助手</h1>
-      <p>公开可核验岗位数据 · 上传简历即分析匹配 · 公益免费</p>
+      <p>公开可核验岗位数据 · 个人自助使用 · 不收集简历 · 公益免费</p>
     </div>
     <div class="hstats">
       <span class="stat"><span class="dot" id="dotApi"></span><span id="txtApi">连接中…</span></span>
@@ -36,7 +36,7 @@
         <div id="drop" class="drop">
           <span class="ico">📄</span>
           <b>点击选择，或把简历拖到这里</b>
-          <span>PDF · DOCX · TXT · MD　|　最大 12MB　|　文件只在内存中解析，不保存</span>
+          <span>PDF · DOCX · TXT · MD　|　最大 12MB　|　仅内存即时解析，不收集、不保存</span>
         </div>
         <input type="file" id="file" class="hide" accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json" />
         <div id="fileResult" class="hide" style="margin-top:10px"></div>
@@ -66,15 +66,20 @@
       <div class="small muted" style="line-height:1.85">
         ① 上传简历 → 自动提取画像并按匹配度排序岗位<br/>
         ② 每条岗位都显示<b>来源、发布时间、原始链接</b>，点击可回到官网核验<br/>
-        ③ 「国内校招岗位」来自每日更新的 2027 届开源岗位库；「具体岗位」来自企业 / 公开职位 API<br/>
+        ③ 已开设「2027 校招专栏」；校招岗位来自公开社区库并回链原始公告，侵权即删<br/>
         ④ 薪资按来源原始币种显示，未公开的一律留空，不虚构
       </div>
-      <div class="hl" style="margin-top:10px">简历文件不写入磁盘、不上传第三方；仅在你配置了大模型密钥时，才会把文本送往你自己的模型服务做一次性解析。</div>
+      <div class="hl" style="margin-top:10px"><b>个人使用 · 不收集简历：</b>本网站是供个人自助使用的公益小工具，不设账号、不收集或留存任何个人信息与简历数据。简历仅在你主动上传后于运行内存中即时解析，解析完成立即释放，不写入磁盘、不写入日志、不用于其他用途，也不转发给第三方大模型（本版未启用 LLM）。请勿上传与本次求职无关的敏感个人信息。</div>
     </section>
   </aside>
 
   <!-- ============ 右侧：岗位 ============ -->
   <main class="main">
+    <div class="views" id="views">
+      <button class="view on" data-view="all">全部岗位<span class="vnum" id="viewAllNum"></span></button>
+      <button class="view" data-view="campus">🎓 2027 校招专栏<span class="vnum" id="viewCampusNum"></span></button>
+    </div>
+    <div class="campus-tip hide" id="campusTip"><b>公益提示：</b>本专栏岗位来自公开社区库，仅回链企业原始公告，不复制数据库、不随包分发、不收费。岗位信息以企业官网为准，投递前请务必核验；如涉及侵权，请通过 GitHub 地址联系删除。</div>
     <section class="card toolbar">
       <div class="searchrow">
         <div class="search"><input id="q" placeholder="搜索岗位 / 公司 / 技能，中英文都可以（如：算法、Python、Data）" /></div>
@@ -104,13 +109,16 @@
 
 <div class="footer">
   <b>数据来源与署名：</b>
-  国内 2027 届校招岗位库 <a href="https://github.com/HU-eun/campus-recruitment" target="_blank" rel="noopener">HU-eun/campus-recruitment</a>（社区维护、每日自动更新，含公司/岗位/地点/截止时间/投递链接）·
   企业官方职位板 <a href="https://boards-api.greenhouse.io/" target="_blank" rel="noopener">Greenhouse</a> ·
   远程职位 <a href="https://jobicy.com/" target="_blank" rel="noopener">Jobicy</a>（按其 API 要求署名并回链原帖）、
   <a href="https://remoteok.com/" target="_blank" rel="noopener">RemoteOK</a>、
   <a href="https://himalayas.app/jobs" target="_blank" rel="noopener">Himalayas</a>。
   每条岗位卡片均保留原始链接、来源与抓取时间，请以企业官网最终信息为准，谨防虚假招聘与收费内推。<br/>
-  <b>合规说明：</b>本项目只使用公开、无需授权、可被任何人复核的数据接口，不抓取明确禁止程序访问的商业招聘平台，不绕过登录与鉴权；对外请求限速并标识 User-Agent。岗位不保证实时在招，投递前请到官网确认。
+  <b>合规说明：</b>本项目只使用公开、无需授权、可被任何人复核的数据接口，不抓取明确禁止程序访问的商业招聘平台，不绕过登录与鉴权；对外请求限速并标识 User-Agent。岗位不保证实时在招，投递前请到官网确认。<br/>
+  <b>个人使用与隐私：</b>本网站为个人自助使用的公益工具，不设账号、不收集个人信息或简历数据；简历仅在内存即时解析后释放。<br/>
+  <b>项目与公益：</b>源码地址 <a href="https://github.com/lanlanyuan/caihang-jobs-agent" target="_blank" rel="noopener">github.com/lanlanyuan/caihang-jobs-agent</a>（当前私有）；本项目纯公益、<b>完全免费</b>，不收费、不做付费内推。<br/>
+  <b>开源致谢：</b>感谢 Greenhouse / Jobicy / RemoteOK / Himalayas 提供公开职位接口，感谢 <a href="https://www.npmjs.com/package/pdf-parse" target="_blank" rel="noopener">pdf-parse</a>（MIT）与 Node.js 社区；数据权利归各自作者所有。<br/>
+  <b>侵权联系：</b>如任何内容涉及侵权，请通过 <a href="https://github.com/lanlanyuan/caihang-jobs-agent" target="_blank" rel="noopener">GitHub 地址</a> 联系作者，我们将第一时间核实并删除相关信息。本链接纯公益、不收费。
 </div>
 
 <div id="modalRoot"></div>
