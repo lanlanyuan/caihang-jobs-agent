@@ -16,7 +16,7 @@
 | 梁湘瑶 | 原始需求、原始项目、「真实岗位数据 + 简历上传匹配」验收标准、产品方向与最终交付审核 |
 | 阿岩（AI 辅助） | 原版诊断、数据源实测、v3 架构与代码起草、README 与 25 项端到端自验、交付包校验 |
 
-完整分工、AI 参与边界与引用格式见 [AUTHORS.md](./AUTHORS.md)；第三方来源与许可见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。提交信息中的 `Co-authored-by` 仅为协作过程留痕；参赛作品未选择开源许可证，保留所有权利。
+完整分工、AI 参与边界与引用格式见 [AUTHORS.md](./AUTHORS.md)；第三方来源与许可见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。提交信息中的 `Co-authored-by` 仅为协作过程留痕。**本项目源代码以 [MIT License](./LICENSE) 开源**；第三方岗位数据不在该许可范围内，按各自上游条款处理（见 THIRD_PARTY_NOTICES.md）。
 
 ---
 
