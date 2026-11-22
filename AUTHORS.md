@@ -2,7 +2,7 @@
 
 本作品由 **梁湘瑶**（人类作者）与 **阿岩**（WorkBuddy AI 工程助理，AI 辅助）**协同创作**。
 
-> **项目地址**：https://github.com/lanlanyuan/caihang-jobs-agent（当前为私有仓库）
+> **项目地址（公开仓库）**：https://github.com/lanlanyuan/caihang-jobs-agent
 > **公益与隐私声明**：本项目是**个人使用的公益小工具**，纯公益、**完全免费**——不收费、不接受付费内推或导流；**不设账号、不收集个人信息或简历数据**，简历不用于任何商业用途。
 
 ---
